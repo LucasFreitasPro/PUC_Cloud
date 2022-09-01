@@ -1,0 +1,290 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8081
+  description: Generated server url
+paths:
+  /api/v1/colecoes/{idColecao}:
+    get:
+      tags:
+      - colecao-rest-controller
+      summary: Recupera uma coleção pelo seu identificador
+      operationId: getOne
+      parameters:
+      - name: idColecao
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Coleção encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Colecao'
+        "404":
+          description: Coleção não encontrada
+    put:
+      tags:
+      - colecao-rest-controller
+      summary: Atualiza uma coleção pelo seu identificador
+      operationId: update
+      parameters:
+      - name: idColecao
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ColecaoUpdatingRequest'
+        required: true
+      responses:
+        "409":
+          description: O nome informado já se encontra cadastrado em outra Coleção
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        "400":
+          description: Payload inválido
+        "200":
+          description: Coleção atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Colecao'
+    delete:
+      tags:
+      - colecao-rest-controller
+      summary: Exclui uma coleção pelo seu identificador
+      operationId: delete
+      parameters:
+      - name: idColecao
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Coleção excluída com sucesso
+  /api/v1/colecoes:
+    get:
+      tags:
+      - colecao-rest-controller
+      summary: Recupera todas as coleções cadastradas
+      operationId: getAll
+      responses:
+        "200":
+          description: Lista de coleções cadastradas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Colecao'
+        "404":
+          description: Nenhuma coleção encontrada
+    post:
+      tags:
+      - colecao-rest-controller
+      summary: Cadastra uma nova coleção
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ColecaoRegisteringRequest'
+        required: true
+      responses:
+        "201":
+          description: Coleção cadastrada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Colecao'
+        "409":
+          description: A coleção já se encontra cadastrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        "400":
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+  /api/v1/colecoes/museus/{idMuseu}:
+    get:
+      tags:
+      - colecao-rest-controller
+      summary: Recupera todas as coleções cadastradas pelo identificador de um museu
+      operationId: getAllByIdMuseu
+      parameters:
+      - name: idMuseu
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Lista de coleções cadastradas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Colecao'
+        "404":
+          description: Nenhuma coleção encontrada
+components:
+  schemas:
+    ColecaoUpdatingRequest:
+      type: object
+      properties:
+        nome:
+          type: string
+        idMuseu:
+          type: string
+          format: uuid
+        tipoColecao:
+          type: string
+        contato:
+          $ref: '#/components/schemas/ContatoRequest'
+        endereco:
+          $ref: '#/components/schemas/EnderecoRequest'
+    ContatoRequest:
+      required:
+      - nome
+      - telefone
+      type: object
+      properties:
+        nome:
+          type: string
+        descricao:
+          type: string
+        telefone:
+          type: string
+        email:
+          type: string
+    EnderecoRequest:
+      required:
+      - bairro
+      - cep
+      - cidade
+      - estado
+      - logradouro
+      - numero
+      - tipoLogradouro
+      type: object
+      properties:
+        tipoLogradouro:
+          type: string
+        logradouro:
+          type: string
+        numero:
+          type: integer
+          format: int32
+        complemento:
+          type: string
+        bairro:
+          type: string
+        cidade:
+          type: string
+        estado:
+          type: string
+        cep:
+          type: string
+    ConflictResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    Colecao:
+      type: object
+      properties:
+        idColecao:
+          type: string
+          format: uuid
+        idMuseu:
+          type: string
+          format: uuid
+        nome:
+          type: string
+        tipoColecao:
+          $ref: '#/components/schemas/TipoColecao'
+        endereco:
+          $ref: '#/components/schemas/Endereco'
+        contato:
+          $ref: '#/components/schemas/Contato'
+    Contato:
+      type: object
+      properties:
+        nome:
+          type: string
+        descricao:
+          type: string
+        telefone:
+          type: string
+        email:
+          type: string
+    Endereco:
+      type: object
+      properties:
+        tipoLogradouro:
+          type: string
+        logradouro:
+          type: string
+        numero:
+          type: integer
+          format: int32
+        complemento:
+          type: string
+        bairro:
+          type: string
+        cidade:
+          type: string
+        estado:
+          type: string
+        cep:
+          type: string
+    TipoColecao:
+      type: object
+      properties:
+        idTipoColecao:
+          type: string
+          format: uuid
+        tipo:
+          type: string
+    ColecaoRegisteringRequest:
+      required:
+      - endereco
+      - idMuseu
+      - nome
+      - tipoColecao
+      type: object
+      properties:
+        nome:
+          type: string
+        idMuseu:
+          type: string
+          format: uuid
+        tipoColecao:
+          type: string
+        contato:
+          $ref: '#/components/schemas/ContatoRequest'
+        endereco:
+          $ref: '#/components/schemas/EnderecoRequest'
+    BadRequestResponse:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string

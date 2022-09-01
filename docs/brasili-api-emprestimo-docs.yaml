@@ -1,0 +1,279 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8085
+  description: Generated server url
+paths:
+  /api/v1/emprestimos:
+    get:
+      tags:
+      - emprestimo-rest-controller
+      summary: Recupera todos os empréstimos
+      operationId: getAll
+      responses:
+        "200":
+          description: Lista de empréstimos cadastrados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Emprestimo'
+        "404":
+          description: Nenhum empréstimo encontrado
+    post:
+      tags:
+      - emprestimo-rest-controller
+      summary: Cadastra um novo empréstimo
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmprestimoRegisteringRequest'
+        required: true
+      responses:
+        "400":
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        "201":
+          description: Empréstimo cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Emprestimo'
+        "409":
+          description: O objeto de arte já se encontra emprestado dentro do período
+            informado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+  /api/v1/emprestimos/{idEmprestimo}:
+    get:
+      tags:
+      - emprestimo-rest-controller
+      summary: Recupera um empréstimo pelo seu identificador
+      operationId: getOne
+      parameters:
+      - name: idEmprestimo
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "404":
+          description: Empréstimo não encontrado
+        "200":
+          description: Empréstimo encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Emprestimo'
+    delete:
+      tags:
+      - emprestimo-rest-controller
+      summary: Exclui um empréstimo pelo seu identificador
+      operationId: delete
+      parameters:
+      - name: idEmprestimo
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Empréstimo excluído com sucesso
+    patch:
+      tags:
+      - emprestimo-rest-controller
+      summary: Atualiza a data de devolução de um empréstimo pelo seu identificador
+      operationId: update
+      parameters:
+      - name: idEmprestimo
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmprestimoUpdatingRequest'
+        required: true
+      responses:
+        "409":
+          description: A data de devolução não pode ser menor que a data do empréstimo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        "400":
+          description: Payload inválido
+        "200":
+          description: Empréstimo atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Emprestimo'
+  /api/v1/emprestimos/{idEmprestimo}/objetos-arte:
+    get:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Recupera todos os objetos de arte pelo identificador do empréstimo
+      operationId: getAll_1
+      parameters:
+      - name: idEmprestimo
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "404":
+          description: Nenhum objeto de arte encontrado
+        "200":
+          description: Lista de objetos de arte cadastrados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjetoArte'
+  /api/v1/emprestimos/{idEmprestimo}/objetos-arte/{idObjetoArte}:
+    get:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Recupera um objeto de arte pelo identificador do empréstimo
+      operationId: getOne_1
+      parameters:
+      - name: idEmprestimo
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: idObjetoArte
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "404":
+          description: Objeto de arte não encontrado
+        "200":
+          description: Objeto de arte encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjetoArte'
+    delete:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Exclui um objeto de arte pelo seu identificador e pelo identificador
+        do empréstimo
+      operationId: delete_1
+      parameters:
+      - name: idEmprestimo
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: idObjetoArte
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Empréstimo excluído com sucesso
+components:
+  schemas:
+    EmprestimoRegisteringRequest:
+      required:
+      - dataDevolucao
+      - dataEmprestimo
+      - idMuseuAutorEmprestimo
+      type: object
+      properties:
+        idMuseuAutorEmprestimo:
+          type: string
+          format: uuid
+        objetosArte:
+          maxItems: 2147483647
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjetoArteRegisteringRequest'
+        dataEmprestimo:
+          type: string
+          format: date
+        dataDevolucao:
+          type: string
+          format: date
+    ObjetoArteRegisteringRequest:
+      required:
+      - idObjetoArte
+      type: object
+      properties:
+        idObjetoArte:
+          type: string
+          format: uuid
+    BadRequestResponse:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    Emprestimo:
+      type: object
+      properties:
+        idEmprestimo:
+          type: string
+          format: uuid
+        idMuseuAutorEmprestimo:
+          type: string
+          format: uuid
+        objetosArte:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjetoArte'
+        dataEmprestimo:
+          type: string
+          format: date
+        dataDevolucao:
+          type: string
+          format: date
+    ObjetoArte:
+      type: object
+      properties:
+        objetoArteId:
+          $ref: '#/components/schemas/ObjetoArteId'
+    ObjetoArteId:
+      type: object
+      properties:
+        idObjetoArte:
+          type: string
+          format: uuid
+        idEmprestimo:
+          type: string
+          format: uuid
+    ConflictResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    EmprestimoUpdatingRequest:
+      type: object
+      properties:
+        dataDevolucao:
+          type: string
+          format: date

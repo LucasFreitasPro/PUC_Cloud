@@ -1,0 +1,219 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /api/v1/artistas/{idArtista}:
+    get:
+      tags:
+      - artista-rest-controller
+      summary: Recuperar artista pelo seu identificador
+      operationId: getOne
+      parameters:
+      - name: idArtista
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Artista encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Artista'
+        "404":
+          description: Artista não encontrado
+    put:
+      tags:
+      - artista-rest-controller
+      summary: Atualizar um artista pelo seu identificador
+      operationId: update
+      parameters:
+      - name: idArtista
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtistaUpdatingRequest'
+        required: true
+      responses:
+        "400":
+          description: Payload inválido
+        "409":
+          description: O nome informado já se encontra cadastrado em outro Artista
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        "200":
+          description: Artista atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Artista'
+    delete:
+      tags:
+      - artista-rest-controller
+      summary: Excluir um artista pelo seu identificador
+      operationId: delete
+      parameters:
+      - name: idArtista
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Artista excluído com sucesso
+  /api/v1/artistas:
+    get:
+      tags:
+      - artista-rest-controller
+      summary: Recuperar todos os artistas cadastrados
+      operationId: getAll
+      responses:
+        "200":
+          description: Lista de artistas cadastrados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Artista'
+        "404":
+          description: Nenhum artista encontrado
+    post:
+      tags:
+      - artista-rest-controller
+      summary: Cadastrar um novo artista
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtistaRegisteringRequest'
+        required: true
+      responses:
+        "400":
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        "409":
+          description: O artista já se encontra cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        "201":
+          description: Artista cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Artista'
+components:
+  schemas:
+    ArtistaUpdatingRequest:
+      required:
+      - epocaDescricao
+      - nome
+      type: object
+      properties:
+        epocaDescricao:
+          type: string
+        nome:
+          type: string
+        nascimento:
+          type: string
+          format: date
+        falecimento:
+          type: string
+          format: date
+        paisOrigem:
+          type: string
+        estiloDominante:
+          type: string
+        descricao:
+          type: string
+    ConflictResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    Artista:
+      type: object
+      properties:
+        idArtista:
+          type: string
+          format: uuid
+        nome:
+          type: string
+        descricao:
+          type: string
+        nascimento:
+          type: string
+          format: date
+        falecimento:
+          type: string
+          format: date
+        paisOrigem:
+          type: string
+        epoca:
+          $ref: '#/components/schemas/Epoca'
+        estilo:
+          $ref: '#/components/schemas/Estilo'
+    Epoca:
+      type: object
+      properties:
+        idEpoca:
+          type: string
+          format: uuid
+        descricao:
+          type: string
+    Estilo:
+      type: object
+      properties:
+        idEstilo:
+          type: string
+          format: uuid
+        nome:
+          type: string
+    ArtistaRegisteringRequest:
+      required:
+      - epocaDescricao
+      - nome
+      type: object
+      properties:
+        epocaDescricao:
+          type: string
+        nome:
+          type: string
+        nascimento:
+          type: string
+          format: date
+        falecimento:
+          type: string
+          format: date
+        paisOrigem:
+          type: string
+        estiloDominante:
+          type: string
+        descricao:
+          type: string
+    BadRequestResponse:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string

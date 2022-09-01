@@ -1,0 +1,315 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8082
+  description: Generated server url
+paths:
+  /api/v1/exposicoes/{idExposicao}:
+    get:
+      tags:
+      - exposicao-rest-controller
+      summary: Recupera uma exposição pelo seu identificador
+      operationId: getOne
+      parameters:
+      - name: idExposicao
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "404":
+          description: Exposição não encontrada
+        "200":
+          description: Exposição encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exposicao'
+    put:
+      tags:
+      - exposicao-rest-controller
+      summary: Atualiza uma exposição pelo seu identificador
+      operationId: update
+      parameters:
+      - name: idExposicao
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExposicaoUpdatingRequest'
+        required: true
+      responses:
+        "400":
+          description: Payload inválido
+        "409":
+          description: O nome informado já se encontra cadastrado em outra Exposição
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        "200":
+          description: Exposição atualizada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exposicao'
+    delete:
+      tags:
+      - exposicao-rest-controller
+      summary: Exclui uma exposição pelo seu identificador
+      operationId: delete
+      parameters:
+      - name: idExposicao
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Exposição excluída com sucesso
+  /api/v1/exposicoes:
+    get:
+      tags:
+      - exposicao-rest-controller
+      summary: Recupera todas as exposições cadastradas
+      operationId: getAll
+      responses:
+        "404":
+          description: Nenhuma exposição encontrada
+        "200":
+          description: Lista de exposições cadastradas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exposicao'
+    post:
+      tags:
+      - exposicao-rest-controller
+      summary: Cadastra uma nova exposição
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExposicaoRegisteringRequest'
+        required: true
+      responses:
+        "201":
+          description: Exposição cadastrada com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Exposicao'
+        "400":
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        "409":
+          description: A exposição já se encontra cadastrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+  /api/v1/exposicoes/{idExposicao}/objetos-arte:
+    get:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Recupera todos os objetos de arte cadastrados em uma exposição
+      operationId: getAll_1
+      parameters:
+      - name: idExposicao
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Lista de objetos de arte cadastrados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjetoArte'
+        "404":
+          description: Nenhum objeto de arte encontrado
+    post:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Cadastra um novo objeto de arte em uma exposição
+      operationId: create_1
+      parameters:
+      - name: idExposicao
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjetoArteRegisteringRequest'
+        required: true
+      responses:
+        "201":
+          description: Objeto de arte cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjetoArte'
+        "409":
+          description: O objeto de arte já se encontra cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        "400":
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+  /api/v1/exposicoes/{idExposicao}/objetos-arte/{idObjetoArte}:
+    get:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Recupera um objeto de arte cadastrado em uma exposição
+      operationId: getOne_1
+      parameters:
+      - name: idExposicao
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: idObjetoArte
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Objeto de arte encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjetoArte'
+        "404":
+          description: Objeto de arte não encontrado
+    delete:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Exclui um objeto de arte que está em uma exposição
+      operationId: delete_1
+      parameters:
+      - name: idExposicao
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: idObjetoArte
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Objeto de arte excluído com sucesso
+components:
+  schemas:
+    ExposicaoUpdatingRequest:
+      type: object
+      properties:
+        dataInicio:
+          type: string
+          format: date
+        dataEncerramento:
+          type: string
+          format: date
+        descricao:
+          type: string
+    ConflictResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    Exposicao:
+      type: object
+      properties:
+        idExposicao:
+          type: string
+          format: uuid
+        nome:
+          type: string
+        descricao:
+          type: string
+        dataInicio:
+          type: string
+          format: date-time
+        dataEncerramento:
+          type: string
+          format: date-time
+        objetosArte:
+          type: array
+          items:
+            $ref: '#/components/schemas/ObjetoArte'
+    ObjetoArte:
+      type: object
+      properties:
+        objetoArteId:
+          $ref: '#/components/schemas/ObjetoArteId'
+    ObjetoArteId:
+      type: object
+      properties:
+        idObjetoArte:
+          type: string
+          format: uuid
+        idExposicao:
+          type: string
+          format: uuid
+    ExposicaoRegisteringRequest:
+      required:
+      - dataEncerramento
+      - dataInicio
+      - nome
+      type: object
+      properties:
+        nome:
+          type: string
+        descricao:
+          type: string
+        dataInicio:
+          type: string
+          format: date-time
+        dataEncerramento:
+          type: string
+          format: date-time
+    BadRequestResponse:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    ObjetoArteRegisteringRequest:
+      required:
+      - idObjetoArte
+      type: object
+      properties:
+        idObjetoArte:
+          type: string
+          format: uuid

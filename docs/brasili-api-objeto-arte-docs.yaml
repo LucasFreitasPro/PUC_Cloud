@@ -1,0 +1,400 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8084
+  description: Generated server url
+paths:
+  /api/v1/objetos-arte/{idObjetoArte}:
+    get:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Recupera um objeto de arte pelo seu identificador
+      operationId: getOne
+      parameters:
+      - name: idObjetoArte
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: Objeto de arte cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjetoArte'
+        "404":
+          description: Objeto de arte não cadastrado
+    put:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Atualiza um objeto de arte pelo seu identificador
+      operationId: update
+      parameters:
+      - name: idObjetoArte
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjetoArteUpdatingRequest'
+        required: true
+      responses:
+        "409":
+          description: O título informado já se encontra cadastrado em outro Objeto
+            de arte na coleção informada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        "200":
+          description: Objeto de arte atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjetoArte'
+        "400":
+          description: Payload inválido
+    delete:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Exclui um objeto de arte pelo seu identificador
+      operationId: delete
+      parameters:
+      - name: idObjetoArte
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Objeto de arte excluído com sucesso
+  /api/v1/objetos-arte:
+    get:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Recupera todos os objetos de arte
+      operationId: getAll
+      responses:
+        "404":
+          description: Nenhum objeto de arte encontrado
+        "200":
+          description: Lista de objetos de arte cadastrados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjetoArte'
+    post:
+      tags:
+      - objeto-arte-rest-controller
+      summary: Cadastra um novo objeto de arte
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObjetoArteRegisteringRequest'
+        required: true
+      responses:
+        "409":
+          description: O objeto de arte já se encontra cadastrado na coleção informada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        "201":
+          description: Objeto de arte cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjetoArte'
+        "400":
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+components:
+  schemas:
+    CategoriaRequest:
+      required:
+      - nome
+      type: object
+      properties:
+        nome:
+          type: string
+    EpocaRequest:
+      required:
+      - descricao
+      type: object
+      properties:
+        descricao:
+          type: string
+    EstiloObraArteRequest:
+      required:
+      - nome
+      type: object
+      properties:
+        nome:
+          type: string
+    MaterialRequest:
+      required:
+      - descricao
+      type: object
+      properties:
+        descricao:
+          type: string
+    ObjetoArteUpdatingRequest:
+      type: object
+      properties:
+        epoca:
+          $ref: '#/components/schemas/EpocaRequest'
+        paisOrigem:
+          type: string
+        anoCriacao:
+          type: string
+          format: date
+        titulo:
+          type: string
+        descricao:
+          type: string
+        dataAquisicao:
+          type: string
+          format: date
+        custoAquisicao:
+          type: number
+          format: double
+        exposto:
+          type: boolean
+        artistas:
+          type: array
+          items:
+            type: string
+            format: uuid
+        idColecao:
+          type: string
+          format: uuid
+        obraArte:
+          $ref: '#/components/schemas/ObraArteUpdatingRequest'
+    ObraArteUpdatingRequest:
+      type: object
+      properties:
+        categoria:
+          $ref: '#/components/schemas/CategoriaRequest'
+        estiloObraArte:
+          $ref: '#/components/schemas/EstiloObraArteRequest'
+        tipoObraArte:
+          $ref: '#/components/schemas/TipoObraArteRequest'
+        peso:
+          type: number
+          format: float
+        altura:
+          type: integer
+          format: int32
+        largura:
+          type: integer
+          format: int32
+        materiais:
+          type: array
+          items:
+            $ref: '#/components/schemas/MaterialRequest'
+    TipoObraArteRequest:
+      required:
+      - descricao
+      type: object
+      properties:
+        descricao:
+          type: string
+    ConflictResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    Artista:
+      type: object
+      properties:
+        artistaId:
+          $ref: '#/components/schemas/ArtistaId'
+    ArtistaId:
+      type: object
+      properties:
+        idArtista:
+          type: string
+          format: uuid
+        idObjetoArte:
+          type: string
+          format: uuid
+    Categoria:
+      type: object
+      properties:
+        idCategoria:
+          type: string
+          format: uuid
+        nome:
+          type: string
+    Epoca:
+      type: object
+      properties:
+        idEpoca:
+          type: string
+          format: uuid
+        descricao:
+          type: string
+    EstiloObraArte:
+      type: object
+      properties:
+        idEstiloObraArte:
+          type: string
+          format: uuid
+        descricao:
+          type: string
+    ObjetoArte:
+      type: object
+      properties:
+        idObjetoArte:
+          type: string
+          format: uuid
+        idColecao:
+          type: string
+          format: uuid
+        identificador:
+          type: string
+        paisOrigem:
+          type: string
+        anoCriacao:
+          type: string
+          format: date
+        titulo:
+          type: string
+        descricao:
+          type: string
+        dataAquisicao:
+          type: string
+          format: date
+        custoAquisicao:
+          type: number
+          format: double
+        exposto:
+          type: boolean
+        obraArte:
+          $ref: '#/components/schemas/ObraArte'
+        epoca:
+          $ref: '#/components/schemas/Epoca'
+        artistas:
+          type: array
+          items:
+            $ref: '#/components/schemas/Artista'
+    ObraArte:
+      type: object
+      properties:
+        idObraArte:
+          type: string
+          format: uuid
+        peso:
+          type: number
+          format: float
+        altura:
+          type: integer
+          format: int32
+        largura:
+          type: integer
+          format: int32
+        categoria:
+          $ref: '#/components/schemas/Categoria'
+        estiloObraArte:
+          $ref: '#/components/schemas/EstiloObraArte'
+        tipoObraArte:
+          $ref: '#/components/schemas/TipoObraArte'
+    TipoObraArte:
+      type: object
+      properties:
+        idTipoObraArte:
+          type: string
+          format: uuid
+        descricao:
+          type: string
+    ObjetoArteRegisteringRequest:
+      required:
+      - anoCriacao
+      - custoAquisicao
+      - dataAquisicao
+      - epoca
+      - exposto
+      - obraArte
+      - titulo
+      type: object
+      properties:
+        epoca:
+          $ref: '#/components/schemas/EpocaRequest'
+        paisOrigem:
+          type: string
+        anoCriacao:
+          type: string
+          format: date
+        titulo:
+          type: string
+        descricao:
+          type: string
+        dataAquisicao:
+          type: string
+          format: date
+        custoAquisicao:
+          type: number
+          format: double
+        exposto:
+          type: boolean
+        artistas:
+          maxItems: 2147483647
+          minItems: 1
+          type: array
+          items:
+            type: string
+            format: uuid
+        idColecao:
+          type: string
+          format: uuid
+        obraArte:
+          $ref: '#/components/schemas/ObraArteRegisteringRequest'
+    ObraArteRegisteringRequest:
+      required:
+      - categoria
+      - estiloObraArte
+      - tipoObraArte
+      type: object
+      properties:
+        categoria:
+          $ref: '#/components/schemas/CategoriaRequest'
+        estiloObraArte:
+          $ref: '#/components/schemas/EstiloObraArteRequest'
+        tipoObraArte:
+          $ref: '#/components/schemas/TipoObraArteRequest'
+        peso:
+          type: number
+          format: float
+        altura:
+          type: integer
+          format: int32
+        largura:
+          type: integer
+          format: int32
+        materiais:
+          maxItems: 2147483647
+          minItems: 1
+          type: array
+          items:
+            $ref: '#/components/schemas/MaterialRequest'
+    BadRequestResponse:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string

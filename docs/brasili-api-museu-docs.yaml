@@ -1,0 +1,251 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8083
+  description: Generated server url
+paths:
+  /api/v1/museus/{idMuseu}:
+    get:
+      tags:
+      - museu-rest-controller
+      summary: Recupera um museu pelo seu identificador
+      operationId: getOne
+      parameters:
+      - name: idMuseu
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "404":
+          description: Museu não encontrado
+        "200":
+          description: Museu encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Museu'
+    put:
+      tags:
+      - museu-rest-controller
+      summary: Atualiza um museu pelo seu identificador
+      operationId: update
+      parameters:
+      - name: idMuseu
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MuseuUpdatingRequest'
+        required: true
+      responses:
+        "400":
+          description: Payload inválido
+        "409":
+          description: O nome informado já se encontra cadastrado em outro Museu na
+            mesma cidade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+        "200":
+          description: Museu atualizado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Museu'
+    delete:
+      tags:
+      - museu-rest-controller
+      summary: Exclui um museu pelo seu identificador
+      operationId: delete
+      parameters:
+      - name: idMuseu
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "204":
+          description: Museu excluído com sucesso
+  /api/v1/museus:
+    get:
+      tags:
+      - museu-rest-controller
+      summary: Recupera todos os museus cadastrados
+      operationId: getAll
+      responses:
+        "200":
+          description: Lista de museus cadastrados
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Museu'
+        "404":
+          description: Nenhum museu encontrado
+    post:
+      tags:
+      - museu-rest-controller
+      summary: Cadastra um novo museu
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MuseuRegisteringRequest'
+        required: true
+      responses:
+        "400":
+          description: Payload inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        "201":
+          description: Museu cadastrado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Museu'
+        "409":
+          description: O museu já se encontra cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictResponse'
+components:
+  schemas:
+    ContatoRequest:
+      required:
+      - nome
+      - telefone
+      type: object
+      properties:
+        nome:
+          type: string
+        descricao:
+          type: string
+        telefone:
+          type: string
+        email:
+          type: string
+    EnderecoRequest:
+      required:
+      - bairro
+      - cep
+      - cidade
+      - estado
+      - logradouro
+      - numero
+      - tipoLogradouro
+      type: object
+      properties:
+        tipoLogradouro:
+          type: string
+        logradouro:
+          type: string
+        numero:
+          type: integer
+          format: int32
+        complemento:
+          type: string
+        bairro:
+          type: string
+        cidade:
+          type: string
+        estado:
+          type: string
+        cep:
+          type: string
+    MuseuUpdatingRequest:
+      type: object
+      properties:
+        nome:
+          type: string
+        sigla:
+          type: string
+        contato:
+          $ref: '#/components/schemas/ContatoRequest'
+        endereco:
+          $ref: '#/components/schemas/EnderecoRequest'
+    ConflictResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    Contato:
+      type: object
+      properties:
+        nome:
+          type: string
+        descricao:
+          type: string
+        telefone:
+          type: string
+        email:
+          type: string
+    Endereco:
+      type: object
+      properties:
+        tipoLogradouro:
+          type: string
+        logradouro:
+          type: string
+        numero:
+          type: integer
+          format: int32
+        complemento:
+          type: string
+        bairro:
+          type: string
+        cidade:
+          type: string
+        estado:
+          type: string
+        cep:
+          type: string
+    Museu:
+      type: object
+      properties:
+        idMuseu:
+          type: string
+          format: uuid
+        nome:
+          type: string
+        sigla:
+          type: string
+        endereco:
+          $ref: '#/components/schemas/Endereco'
+        contato:
+          $ref: '#/components/schemas/Contato'
+    MuseuRegisteringRequest:
+      required:
+      - contato
+      - endereco
+      - nome
+      type: object
+      properties:
+        nome:
+          type: string
+        sigla:
+          type: string
+        contato:
+          $ref: '#/components/schemas/ContatoRequest'
+        endereco:
+          $ref: '#/components/schemas/EnderecoRequest'
+    BadRequestResponse:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
